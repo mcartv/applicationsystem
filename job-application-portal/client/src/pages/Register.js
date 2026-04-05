@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
+import '../styles/Register.css';
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -9,6 +11,7 @@ const Register = () => {
     password: '',
     confirmPassword: ''
   });
+  const [emailExists, setEmailExists] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [error, setError] = useState('');
@@ -32,6 +35,23 @@ const Register = () => {
     return emailRegex.test(email);
   };
 
+  const checkEmailExists = async (email) => {
+    if (!validateEmail(email)) {
+      return false;
+    }
+
+    try {
+      const res = await axios.get('/auth/check-email', {
+        params: { email }
+      });
+      setEmailExists(res.data.exists);
+      return res.data.exists;
+    } catch (err) {
+      console.error('Email check failed', err);
+      return false;
+    }
+  };
+
   const validatePassword = (password) => {
     const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/;
     return passwordRegex.test(password);
@@ -42,6 +62,15 @@ const Register = () => {
       ...formData,
       [e.target.name]: e.target.value
     });
+    if (e.target.name === 'email') {
+      setEmailExists(false);
+    }
+  };
+
+  const handleEmailBlur = async () => {
+    if (formData.email) {
+      await checkEmailExists(formData.email.trim());
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -53,8 +82,16 @@ const Register = () => {
       return;
     }
 
-    if (!validateEmail(formData.email)) {
+    const email = formData.email.trim();
+
+    if (!validateEmail(email)) {
       setError('Please enter a valid email address');
+      return;
+    }
+
+    const exists = await checkEmailExists(email);
+    if (exists) {
+      setError('This email is already registered. Please use a different email.');
       return;
     }
 
@@ -71,9 +108,8 @@ const Register = () => {
     setLoading(true);
     const result = await register(
       formData.name,
-      formData.email,
-      formData.password,
-      'engineer'
+      email,
+      formData.password
     );
     
     if (!result.success) {
@@ -139,10 +175,11 @@ const Register = () => {
               placeholder="Enter your email"
               value={formData.email}
               onChange={handleChange}
+              onBlur={handleEmailBlur}
               required
             />
-            <small style={{ color: '#666', display: 'block', marginTop: '5px' }}>
-              Email must be unique and valid format
+            <small style={{ color: emailExists ? '#c00' : '#666', display: 'block', marginTop: '5px' }}>
+              {emailExists ? 'This email is already registered.' : 'Email must be unique and valid format'}
             </small>
           </div>
           <div className="form-group">
@@ -152,7 +189,7 @@ const Register = () => {
                 type={showPassword ? "text" : "password"}
                 name="password"
                 className="form-control"
-                placeholder="Password (min 8 chars, 1 uppercase, 1 lowercase, 1 number)"
+                placeholder="Enter your password"
                 value={formData.password}
                 onChange={handleChange}
                 required
@@ -161,8 +198,13 @@ const Register = () => {
                 type="button"
                 className="password-toggle"
                 onClick={togglePasswordVisibility}
+                aria-label={showPassword ? "Hide password" : "Show password"}
               >
-                {showPassword ? "👁️" : "👁️‍🗨️"}
+                <img
+                  src={`${process.env.PUBLIC_URL}/${showPassword ? 'hide' : 'view'}.png`}
+                  alt={showPassword ? "Hide password" : "Show password"}
+                  className="password-toggle-icon"
+                />
               </button>
             </div>
             <small style={{ color: '#666', display: 'block', marginTop: '5px' }}>
@@ -185,8 +227,13 @@ const Register = () => {
                 type="button"
                 className="password-toggle"
                 onClick={toggleConfirmPasswordVisibility}
+                aria-label={showConfirmPassword ? "Hide confirm password" : "Show confirm password"}
               >
-                {showConfirmPassword ? "👁️" : "👁️‍🗨️"}
+                <img
+                  src={`${process.env.PUBLIC_URL}/${showConfirmPassword ? 'hide' : 'view'}.png`}
+                  alt={showConfirmPassword ? "Hide confirm password" : "Show confirm password"}
+                  className="password-toggle-icon"
+                />
               </button>
             </div>
           </div>

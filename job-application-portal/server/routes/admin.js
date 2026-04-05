@@ -7,7 +7,7 @@ const auth = require('../middleware/auth');
 router.get('/applications', [auth, auth.adminOnly], async (req, res) => {
   try {
     const applications = await Application.find()
-      .populate('user', 'name email')
+      .populate('user', 'name email role')
       .sort({ submittedAt: -1 });
     res.json(applications);
   } catch (err) {
@@ -20,7 +20,7 @@ router.get('/applications', [auth, auth.adminOnly], async (req, res) => {
 router.get('/applications/:id', [auth, auth.adminOnly], async (req, res) => {
   try {
     const application = await Application.findById(req.params.id)
-      .populate('user', 'name email');
+      .populate('user', 'name email role');
     if (!application) {
       return res.status(404).json({ msg: 'Application not found' });
     }

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import axios from 'axios';
+import '../styles/AdminDashboard.css';
 
 const AdminDashboard = () => {
   const { user, logout } = useAuth();
@@ -23,6 +24,8 @@ const AdminDashboard = () => {
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
   const [validationErrors, setValidationErrors] = useState({});
+  const [statusFilter, setStatusFilter] = useState('all');
+  const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
     if (!user) {
@@ -174,6 +177,33 @@ const AdminDashboard = () => {
     }
   };
 
+  const formatRoleDisplay = (role) => {
+    if (!role) return 'Engineer';
+    return role.charAt(0).toUpperCase() + role.slice(1);
+  };
+
+  const handleStatusFilterChange = (e) => {
+    setStatusFilter(e.target.value);
+  };
+
+  const handleSearchChange = (e) => {
+    setSearchQuery(e.target.value);
+  };
+
+  const filteredApplications = applications.filter((app) => {
+    const statusMatch = statusFilter === 'all' || app.status === statusFilter;
+    const query = searchQuery.trim().toLowerCase();
+
+    if (!statusMatch) return false;
+    if (!query) return true;
+
+    const name = (app.personalInfo?.fullName || app.user?.name || '').toLowerCase();
+    const email = (app.personalInfo?.email || app.user?.email || '').toLowerCase();
+    const position = (app.personalInfo?.position || formatRoleDisplay(app.user?.role)).toLowerCase();
+
+    return name.includes(query) || email.includes(query) || position.includes(query);
+  });
+
   if (loading) {
     return <div className="container" style={{ textAlign: 'center', paddingTop: '50px' }}>Loading...</div>;
   }
@@ -204,10 +234,41 @@ const AdminDashboard = () => {
       
       <div className="dashboard-content">
         <div className="application-card">
-          <h3>All Applications ({applications.length})</h3>
+          <h3>All Applications ({filteredApplications.length})</h3>
           {message && <div className="alert alert-success">{message}</div>}
           {error && <div className="alert alert-error">{error}</div>}
           
+          <div style={{ marginBottom: '20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '10px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', minWidth: '280px' }}>
+              <label htmlFor="searchQuery" style={{ fontWeight: '600' }}>Search:</label>
+              <input
+                id="searchQuery"
+                type="text"
+                value={searchQuery}
+                onChange={handleSearchChange}
+                placeholder="Search by name or email"
+                className="form-control"
+                style={{ width: '420px' }}
+              />
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', minWidth: '260px' }}>
+              <label htmlFor="statusFilter" style={{ fontWeight: '600' }}>Filter by status:</label>
+              <select
+                id="statusFilter"
+                value={statusFilter}
+                onChange={handleStatusFilterChange}
+                className="form-control"
+                style={{ width: '220px' }}
+              >
+                <option value="all">All</option>
+                <option value="pending">Pending Review</option>
+                <option value="interview_scheduled">Interview Scheduled</option>
+                <option value="hired">Hired</option>
+                <option value="rejected">Rejected</option>
+              </select>
+            </div>
+          </div>
+
           <div className="applications-table">
             <table className="table">
               <thead>
@@ -221,10 +282,10 @@ const AdminDashboard = () => {
                 </tr>
               </thead>
               <tbody>
-                {applications.map(app => (
+                {filteredApplications.length > 0 ? filteredApplications.map(app => (
                   <tr key={app._id}>
                     <td>{app.personalInfo?.fullName || app.user?.name || 'N/A'}</td>
-                    <td>{app.personalInfo?.position || 'N/A'}</td>
+                    <td>{app.personalInfo?.position || formatRoleDisplay(app.user?.role)}</td>
                     <td>{app.personalInfo?.email || app.user?.email || 'N/A'}</td>
                     <td>{new Date(app.submittedAt).toLocaleDateString()}</td>
                     <td>
@@ -242,7 +303,13 @@ const AdminDashboard = () => {
                       </button>
                     </td>
                   </tr>
-                ))}
+                )) : (
+                  <tr>
+                    <td colSpan="6" style={{ textAlign: 'center', padding: '20px' }}>
+                      No applications match the selected status.
+                    </td>
+                  </tr>
+                )}
               </tbody>
             </table>
           </div>
@@ -284,7 +351,7 @@ const AdminDashboard = () => {
               <p><strong>Phone:</strong> {selectedApplication.personalInfo?.phone}</p>
               <p><strong>Address:</strong> {selectedApplication.personalInfo?.address || 'N/A'}</p>
               <p><strong>Date of Birth:</strong> {selectedApplication.personalInfo?.dateOfBirth ? new Date(selectedApplication.personalInfo.dateOfBirth).toLocaleDateString() : 'N/A'}</p>
-              <p><strong>Position:</strong> {selectedApplication.personalInfo?.position || 'N/A'}</p>
+              <p><strong>Position:</strong> {selectedApplication.personalInfo?.position || formatRoleDisplay(selectedApplication.user?.role)}</p>
             </div>
             
             {/* Resume */}

@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import '../styles/LandingPage.css';
 
 const LandingPage = () => {
   const { user } = useAuth();
@@ -32,32 +33,32 @@ const LandingPage = () => {
           <p className="section-subtitle">We make job applications simple, fast, and efficient</p>
           <div className="features-grid">
             <div className="feature-card">
-              <div className="feature-icon">📝</div>
+              <div className="feature-icon"></div>
               <h3>Easy Application</h3>
               <p>Fill out your personal information and upload your resume in just a few minutes.</p>
             </div>
             <div className="feature-card">
-              <div className="feature-icon">📊</div>
+              <div className="feature-icon"></div>
               <h3>Real-time Tracking</h3>
               <p>Monitor your application status and get instant updates on your progress.</p>
             </div>
             <div className="feature-card">
-              <div className="feature-icon">📅</div>
+              <div className="feature-icon"></div>
               <h3>Smart Scheduling</h3>
               <p>Get notified about interviews and manage your schedule effortlessly.</p>
             </div>
             <div className="feature-card">
-              <div className="feature-icon">🔒</div>
+              <div className="feature-icon"></div>
               <h3>Secure Platform</h3>
               <p>Your data is safe with our enterprise-grade security measures.</p>
             </div>
             <div className="feature-card">
-              <div className="feature-icon">⚡</div>
+              <div className="feature-icon"></div>
               <h3>Fast Processing</h3>
               <p>Quick response times and efficient application handling.</p>
             </div>
             <div className="feature-card">
-              <div className="feature-icon">💼</div>
+              <div className="feature-icon"></div>
               <h3>Top Companies</h3>
               <p>Connect with leading employers looking for talented professionals.</p>
             </div>

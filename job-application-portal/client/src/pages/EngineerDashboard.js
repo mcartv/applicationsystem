@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import axios from 'axios';
+import '../styles/EngineerDashboard.css';
 
 const EngineerDashboard = () => {
   const { user, logout } = useAuth();

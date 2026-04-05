@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import '../styles/Login.css';
 
 const Login = () => {
   const [formData, setFormData] = useState({
@@ -166,8 +167,13 @@ const Login = () => {
                 className="password-toggle"
                 onClick={togglePasswordVisibility}
                 disabled={cooldownTime > 0}
+                aria-label={showPassword ? "Hide password" : "Show password"}
               >
-                {showPassword ? "👁️" : "👁️‍🗨️"}
+                <img
+                  src={`${process.env.PUBLIC_URL}/${showPassword ? 'hide' : 'view'}.png`}
+                  alt={showPassword ? "Hide password" : "Show password"}
+                  className="password-toggle-icon"
+                />
               </button>
             </div>
           </div>

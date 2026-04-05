@@ -1,4 +1,4 @@
-const express = require('express');
+﻿const express = require('express');
 const router = express.Router();
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
@@ -7,7 +7,7 @@ const auth = require('../middleware/auth');
 // Register
 router.post('/register', async (req, res) => {
   try {
-    const { name, email, password, role } = req.body;
+    const { name, email, password } = req.body;
 
     let user = await User.findOne({ email });
     if (user) {
@@ -18,7 +18,7 @@ router.post('/register', async (req, res) => {
       name,
       email,
       password,
-      role: role || 'engineer'
+      role: 'engineer'
     });
 
     await user.save();
@@ -39,6 +39,23 @@ router.post('/register', async (req, res) => {
         res.json({ token, user: { id: user.id, name: user.name, email: user.email, role: user.role } });
       }
     );
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Server error');
+  }
+});
+
+// Check if email is already registered
+router.get('/check-email', async (req, res) => {
+  try {
+    const { email } = req.query;
+
+    if (!email) {
+      return res.status(400).json({ msg: 'Email is required' });
+    }
+
+    const user = await User.findOne({ email });
+    res.json({ exists: Boolean(user) });
   } catch (err) {
     console.error(err.message);
     res.status(500).send('Server error');
