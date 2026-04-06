@@ -1,118 +1,92 @@
-/* ========== DASHBOARD STYLES ========== */
-
-/* ========== TABLE STYLES ========== */
+/* Admin Dashboard Styles */
 .applications-table {
   width: 100%;
-  background: white;
-  border-radius: 20px;
-  overflow: hidden;
-  box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+  overflow-x: auto;
 }
 
-.applications-table table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-.applications-table th,
-.applications-table td {
-  padding: 15px;
-  text-align: left;
-}
-
-.applications-table th {
-  background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
-  color: white;
-  font-weight: 600;
-  font-size: 0.9rem;
-}
-
-.applications-table tr {
-  border-bottom: 1px solid #f0f0f0;
-  transition: all 0.3s ease;
-}
-
-.applications-table tr:hover {
-  background: #f8f9fa;
-  transform: scale(1.01);
-}
-
-/* ========== MODAL STYLES ========== */
-.modal {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0,0,0,0.6);
-  backdrop-filter: blur(5px);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
-  animation: fadeInUp 0.3s ease;
-}
-
-.modal-content {
-  background: white;
-  padding: 40px;
-  border-radius: 30px;
-  max-width: 600px;
-  width: 90%;
-  max-height: 85vh;
-  overflow-y: auto;
-  animation: fadeInUp 0.3s ease;
-  position: relative;
-}
-
-.modal-header {
+.filter-bar {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 20px;
-  padding-bottom: 15px;
-  border-bottom: 2px solid #f0f0f0;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 24px;
+  padding: 16px 20px;
+  background: #f9fafb;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
 }
 
-.modal-header h3 {
-  color: #1e3c72;
-  font-size: 1.8rem;
-  font-weight: 700;
-  margin: 0;
+.filter-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.filter-group label {
+  font-weight: 500;
+  color: #374151;
+  font-size: 0.875rem;
+}
+
+.filter-group select {
+  padding: 8px 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  font-family: 'Poppins', sans-serif;
+  background: white;
+  cursor: pointer;
+}
+
+.filter-group input {
+  padding: 8px 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  font-family: 'Poppins', sans-serif;
+  width: 250px;
 }
 
 .modal-close-btn {
-  background: #dc3545;
+  background: #ef4444;
   color: white;
   border: none;
-  width: 35px;
-  height: 35px;
-  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
   cursor: pointer;
   font-size: 18px;
-  font-weight: bold;
-  transition: all 0.3s ease;
+  transition: all 0.2s ease;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
 .modal-close-btn:hover {
-  background: #c82333;
-  transform: rotate(90deg);
+  background: #dc2626;
 }
 
-.modal-content h4 {
-  color: #2a5298;
-  margin: 20px 0 10px 0;
-  font-size: 1.2rem;
-  font-weight: 600;
+.error-text {
+  color: #ef4444;
+  font-size: 0.75rem;
+  margin-top: 4px;
+  display: block;
 }
 
-.modal-footer {
-  margin-top: 25px;
-  padding-top: 20px;
-  border-top: 1px solid #f0f0f0;
-  display: flex;
-  justify-content: flex-end;
+/* Responsive */
+@media (max-width: 768px) {
+  .filter-bar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .filter-group {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .filter-group input {
+    width: 100%;
+  }
 }

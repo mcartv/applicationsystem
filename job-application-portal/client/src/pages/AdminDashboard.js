@@ -182,14 +182,6 @@ const AdminDashboard = () => {
     return role.charAt(0).toUpperCase() + role.slice(1);
   };
 
-  const handleStatusFilterChange = (e) => {
-    setStatusFilter(e.target.value);
-  };
-
-  const handleSearchChange = (e) => {
-    setSearchQuery(e.target.value);
-  };
-
   const filteredApplications = applications.filter((app) => {
     const statusMatch = statusFilter === 'all' || app.status === statusFilter;
     const query = searchQuery.trim().toLowerCase();
@@ -205,29 +197,19 @@ const AdminDashboard = () => {
   });
 
   if (loading) {
-    return <div className="container" style={{ textAlign: 'center', paddingTop: '50px' }}>Loading...</div>;
+    return (
+      <div className="loader">
+        <div className="loader-spinner"></div>
+        <p className="text-muted">Loading applications...</p>
+      </div>
+    );
   }
 
   return (
     <div className="dashboard">
       <div className="dashboard-header">
-        <h2>Admin Dashboard - Welcome, {user?.name}</h2>
-        <button 
-          onClick={logout} 
-          className="btn btn-secondary"
-          style={{
-            backgroundColor: '#007bff',
-            color: 'white',
-            border: 'none',
-            padding: '8px 16px',
-            borderRadius: '4px',
-            cursor: 'pointer',
-            fontSize: '14px',
-            fontWeight: '500'
-          }}
-          onMouseEnter={(e) => e.target.style.backgroundColor = '#0056b3'}
-          onMouseLeave={(e) => e.target.style.backgroundColor = '#007bff'}
-        >
+        <h2>Admin Dashboard</h2>
+        <button onClick={logout} className="logout-btn">
           Logout
         </button>
       </div>
@@ -238,27 +220,23 @@ const AdminDashboard = () => {
           {message && <div className="alert alert-success">{message}</div>}
           {error && <div className="alert alert-error">{error}</div>}
           
-          <div style={{ marginBottom: '20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '10px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', minWidth: '280px' }}>
-              <label htmlFor="searchQuery" style={{ fontWeight: '600' }}>Search:</label>
+          <div className="filter-bar">
+            <div className="filter-group">
+              <label>Search:</label>
               <input
-                id="searchQuery"
                 type="text"
                 value={searchQuery}
-                onChange={handleSearchChange}
-                placeholder="Search by name or email"
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search by name or email..."
                 className="form-control"
-                style={{ width: '420px' }}
               />
             </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', minWidth: '260px' }}>
-              <label htmlFor="statusFilter" style={{ fontWeight: '600' }}>Filter by status:</label>
+            <div className="filter-group">
+              <label>Status:</label>
               <select
-                id="statusFilter"
                 value={statusFilter}
-                onChange={handleStatusFilterChange}
+                onChange={(e) => setStatusFilter(e.target.value)}
                 className="form-control"
-                style={{ width: '220px' }}
               >
                 <option value="all">All</option>
                 <option value="pending">Pending Review</option>
@@ -269,16 +247,16 @@ const AdminDashboard = () => {
             </div>
           </div>
 
-          <div className="applications-table">
+          <div className="table-wrapper">
             <table className="table">
               <thead>
                 <tr>
                   <th>Name</th>
                   <th>Position</th>
                   <th>Email</th>
-                  <th>Submitted Date</th>
+                  <th>Submitted</th>
                   <th>Status</th>
-                  <th>Actions</th>
+                  <th>Action</th>
                 </tr>
               </thead>
               <tbody>
@@ -289,7 +267,7 @@ const AdminDashboard = () => {
                     <td>{app.personalInfo?.email || app.user?.email || 'N/A'}</td>
                     <td>{new Date(app.submittedAt).toLocaleDateString()}</td>
                     <td>
-                      <span className={getStatusBadgeClass(app.status)}>
+                      <span className={`status-badge ${getStatusBadgeClass(app.status)}`}>
                         {getStatusText(app.status)}
                       </span>
                     </td>
@@ -297,16 +275,16 @@ const AdminDashboard = () => {
                       <button 
                         onClick={() => handleViewApplication(app)}
                         className="btn btn-primary"
-                        style={{ padding: '5px 10px', fontSize: '0.9rem' }}
+                        style={{ padding: '6px 16px', fontSize: '0.75rem' }}
                       >
-                        View Details
+                        View
                       </button>
                     </td>
                   </tr>
                 )) : (
                   <tr>
-                    <td colSpan="6" style={{ textAlign: 'center', padding: '20px' }}>
-                      No applications match the selected status.
+                    <td colSpan="6" className="text-center" style={{ padding: '40px' }}>
+                      <p className="text-muted">No applications found</p>
                     </td>
                   </tr>
                 )}
@@ -316,186 +294,142 @@ const AdminDashboard = () => {
         </div>
       </div>
 
-      {/* Modal for Application Details */}
+      {/* Modal */}
       {showModal && selectedApplication && (
-        <div className="modal" onClick={closeModal}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-              <h3 style={{ margin: 0 }}>Application Details</h3>
-              <button 
-                onClick={closeModal}
-                style={{
-                  background: '#dc3545',
-                  color: 'white',
-                  border: 'none',
-                  width: '30px',
-                  height: '30px',
-                  borderRadius: '50%',
-                  cursor: 'pointer',
-                  fontSize: '18px',
-                  fontWeight: 'bold',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center'
-                }}
-              >
-                ×
-              </button>
+        <div className="modal-overlay" onClick={closeModal}>
+          <div className="modal" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h3>Application Details</h3>
+              <button onClick={closeModal} className="close-btn">×</button>
             </div>
             
-            {/* Personal Information */}
-            <div style={{ marginBottom: '20px' }}>
-              <h4>Personal Information</h4>
-              <p><strong>Name:</strong> {selectedApplication.personalInfo?.fullName}</p>
-              <p><strong>Email:</strong> {selectedApplication.personalInfo?.email}</p>
-              <p><strong>Phone:</strong> {selectedApplication.personalInfo?.phone}</p>
-              <p><strong>Address:</strong> {selectedApplication.personalInfo?.address || 'N/A'}</p>
-              <p><strong>Date of Birth:</strong> {selectedApplication.personalInfo?.dateOfBirth ? new Date(selectedApplication.personalInfo.dateOfBirth).toLocaleDateString() : 'N/A'}</p>
-              <p><strong>Position:</strong> {selectedApplication.personalInfo?.position || formatRoleDisplay(selectedApplication.user?.role)}</p>
-            </div>
-            
-            {/* Resume */}
-            {selectedApplication.resume && (
-              <div style={{ marginBottom: '20px' }}>
-                <h4>Resume</h4>
-                <p><strong>File:</strong> {selectedApplication.resume.originalName}</p>
-                <a 
-                  href={`http://localhost:5000/${selectedApplication.resume.path}`} 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="btn btn-primary"
-                  style={{ padding: '5px 10px', fontSize: '0.9rem', display: 'inline-block', marginTop: '5px' }}
-                >
-                  View Resume
-                </a>
+            <div className="modal-body">
+              <div className="form-group">
+                <h4>Personal Information</h4>
+                <p><strong>Name:</strong> {selectedApplication.personalInfo?.fullName}</p>
+                <p><strong>Email:</strong> {selectedApplication.personalInfo?.email}</p>
+                <p><strong>Phone:</strong> {selectedApplication.personalInfo?.phone}</p>
+                <p><strong>Address:</strong> {selectedApplication.personalInfo?.address || 'N/A'}</p>
+                <p><strong>Date of Birth:</strong> {selectedApplication.personalInfo?.dateOfBirth ? new Date(selectedApplication.personalInfo.dateOfBirth).toLocaleDateString() : 'N/A'}</p>
+                <p><strong>Position:</strong> {selectedApplication.personalInfo?.position || formatRoleDisplay(selectedApplication.user?.role)}</p>
               </div>
-            )}
-            
-            {/* Current Status */}
-            <div style={{ marginBottom: '20px' }}>
-              <h4>Current Status</h4>
-              <p><strong>Status:</strong> {getStatusText(selectedApplication.status)}</p>
-              {selectedApplication.interviewSchedule && (
-                <div>
-                  <p><strong>Interview Date:</strong> {new Date(selectedApplication.interviewSchedule.date).toLocaleDateString()}</p>
-                  <p><strong>Interview Time:</strong> {selectedApplication.interviewSchedule.time}</p>
-                  <p><strong>Location:</strong> {selectedApplication.interviewSchedule.location}</p>
-                  {selectedApplication.interviewSchedule.notes && (
-                    <p><strong>Notes:</strong> {selectedApplication.interviewSchedule.notes}</p>
-                  )}
-                </div>
-              )}
-              {selectedApplication.adminNotes && (
-                <p><strong>Admin Notes:</strong> {selectedApplication.adminNotes}</p>
-              )}
-            </div>
-            
-            {/* Schedule Interview Form */}
-            <div style={{ marginBottom: '20px' }}>
-              <h4>Schedule Interview</h4>
-              <form onSubmit={handleScheduleInterview}>
+              
+              {selectedApplication.resume && (
                 <div className="form-group">
-                  <label>Date *</label>
-                  <input
-                    type="date"
-                    className={`form-control ${validationErrors.date ? 'is-invalid' : ''}`}
-                    value={interviewData.date}
-                    onChange={(e) => setInterviewData({...interviewData, date: e.target.value})}
-                    min={new Date().toISOString().split('T')[0]}
-                    required
-                  />
-                  {validationErrors.date && <small style={{ color: '#dc3545' }}>{validationErrors.date}</small>}
-                </div>
-                <div className="form-group">
-                  <label>Time *</label>
-                  <input
-                    type="time"
-                    className={`form-control ${validationErrors.time ? 'is-invalid' : ''}`}
-                    value={interviewData.time}
-                    onChange={(e) => setInterviewData({...interviewData, time: e.target.value})}
-                    required
-                  />
-                  {validationErrors.time && <small style={{ color: '#dc3545' }}>{validationErrors.time}</small>}
-                </div>
-                <div className="form-group">
-                  <label>Location / Meeting Link *</label>
-                  <input
-                    type="text"
-                    className={`form-control ${validationErrors.location ? 'is-invalid' : ''}`}
-                    placeholder="e.g., Zoom link or office address"
-                    value={interviewData.location}
-                    onChange={(e) => setInterviewData({...interviewData, location: e.target.value})}
-                    required
-                  />
-                  {validationErrors.location && <small style={{ color: '#dc3545' }}>{validationErrors.location}</small>}
-                  <small style={{ color: '#666', display: 'block', marginTop: '5px' }}>
-                    Enter a valid Zoom/Google Meet link or physical address
-                  </small>
-                </div>
-                <div className="form-group">
-                  <label>Notes (Optional)</label>
-                  <textarea
-                    className="form-control"
-                    rows="2"
-                    placeholder="Additional instructions for the candidate"
-                    value={interviewData.notes}
-                    onChange={(e) => setInterviewData({...interviewData, notes: e.target.value})}
-                  />
-                </div>
-                <button type="submit" className="btn-submit" style={{ marginTop: '10px' }}>
-                  Schedule Interview
-                </button>
-              </form>
-            </div>
-            
-            {/* Update Status Form */}
-            <div>
-              <h4>Update Status</h4>
-              <form onSubmit={handleUpdateStatus}>
-                <div className="form-group">
-                  <label>Status *</label>
-                  <select
-                    className={`form-control ${validationErrors.status ? 'is-invalid' : ''}`}
-                    value={statusData.status}
-                    onChange={(e) => setStatusData({...statusData, status: e.target.value})}
-                    required
+                  <h4>Resume</h4>
+                  <p><strong>File:</strong> {selectedApplication.resume.originalName}</p>
+                  <a 
+                    href={`http://localhost:5000/${selectedApplication.resume.path}`} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="btn btn-primary"
+                    style={{ padding: '6px 16px', fontSize: '0.75rem', display: 'inline-block', marginTop: '8px' }}
                   >
-                    <option value="">Select Status</option>
-                    <option value="pending">Pending</option>
-                    <option value="interview_scheduled">Interview Scheduled</option>
-                    <option value="hired">Hired</option>
-                    <option value="rejected">Rejected</option>
-                  </select>
-                  {validationErrors.status && <small style={{ color: '#dc3545' }}>{validationErrors.status}</small>}
+                    View Resume
+                  </a>
                 </div>
-                <div className="form-group">
-                  <label>Admin Notes {statusData.status === 'rejected' && '*'}</label>
-                  <textarea
-                    className={`form-control ${validationErrors.adminNotes ? 'is-invalid' : ''}`}
-                    rows="3"
-                    placeholder={statusData.status === 'rejected' ? "Please provide a reason for rejection" : "Add notes about this decision (optional)"}
-                    value={statusData.adminNotes}
-                    onChange={(e) => setStatusData({...statusData, adminNotes: e.target.value})}
-                    required={statusData.status === 'rejected'}
-                  />
-                  {validationErrors.adminNotes && <small style={{ color: '#dc3545' }}>{validationErrors.adminNotes}</small>}
-                  <small style={{ color: '#666', display: 'block', marginTop: '5px' }}>
-                    {statusData.status === 'rejected' ? 'Reason for rejection is required' : 'Optional: Add any relevant notes'}
-                  </small>
-                </div>
-                <button type="submit" className="btn-submit" style={{ marginTop: '10px' }}>
-                  Update Status
-                </button>
-              </form>
+              )}
+              
+              <div className="form-group">
+                <h4>Current Status</h4>
+                <p><strong>Status:</strong> <span className={`status-badge ${getStatusBadgeClass(selectedApplication.status)}`}>{getStatusText(selectedApplication.status)}</span></p>
+                {selectedApplication.interviewSchedule && (
+                  <div style={{ marginTop: '12px' }}>
+                    <p><strong>Interview Date:</strong> {new Date(selectedApplication.interviewSchedule.date).toLocaleDateString()}</p>
+                    <p><strong>Interview Time:</strong> {selectedApplication.interviewSchedule.time}</p>
+                    <p><strong>Location:</strong> {selectedApplication.interviewSchedule.location}</p>
+                    {selectedApplication.interviewSchedule.notes && <p><strong>Notes:</strong> {selectedApplication.interviewSchedule.notes}</p>}
+                  </div>
+                )}
+                {selectedApplication.adminNotes && <p><strong>Admin Notes:</strong> {selectedApplication.adminNotes}</p>}
+              </div>
+              
+              <div className="form-group">
+                <h4>Schedule Interview</h4>
+                <form onSubmit={handleScheduleInterview}>
+                  <div className="form-group">
+                    <label>Date *</label>
+                    <input
+                      type="date"
+                      className={`form-control ${validationErrors.date ? 'is-invalid' : ''}`}
+                      value={interviewData.date}
+                      onChange={(e) => setInterviewData({...interviewData, date: e.target.value})}
+                      min={new Date().toISOString().split('T')[0]}
+                    />
+                    {validationErrors.date && <small className="text-sm text-muted" style={{ color: '#ef4444' }}>{validationErrors.date}</small>}
+                  </div>
+                  <div className="form-group">
+                    <label>Time *</label>
+                    <input
+                      type="time"
+                      className={`form-control ${validationErrors.time ? 'is-invalid' : ''}`}
+                      value={interviewData.time}
+                      onChange={(e) => setInterviewData({...interviewData, time: e.target.value})}
+                    />
+                    {validationErrors.time && <small className="text-sm text-muted" style={{ color: '#ef4444' }}>{validationErrors.time}</small>}
+                  </div>
+                  <div className="form-group">
+                    <label>Location / Meeting Link *</label>
+                    <input
+                      type="text"
+                      className={`form-control ${validationErrors.location ? 'is-invalid' : ''}`}
+                      placeholder="Zoom link or office address"
+                      value={interviewData.location}
+                      onChange={(e) => setInterviewData({...interviewData, location: e.target.value})}
+                    />
+                    {validationErrors.location && <small className="text-sm text-muted" style={{ color: '#ef4444' }}>{validationErrors.location}</small>}
+                  </div>
+                  <div className="form-group">
+                    <label>Notes (Optional)</label>
+                    <textarea
+                      className="form-control"
+                      rows="2"
+                      placeholder="Additional instructions"
+                      value={interviewData.notes}
+                      onChange={(e) => setInterviewData({...interviewData, notes: e.target.value})}
+                    />
+                  </div>
+                  <button type="submit" className="btn-submit">Schedule Interview</button>
+                </form>
+              </div>
+              
+              <div className="form-group">
+                <h4>Update Status</h4>
+                <form onSubmit={handleUpdateStatus}>
+                  <div className="form-group">
+                    <label>Status *</label>
+                    <select
+                      className={`form-control ${validationErrors.status ? 'is-invalid' : ''}`}
+                      value={statusData.status}
+                      onChange={(e) => setStatusData({...statusData, status: e.target.value})}
+                    >
+                      <option value="">Select Status</option>
+                      <option value="pending">Pending</option>
+                      <option value="interview_scheduled">Interview Scheduled</option>
+                      <option value="hired">Hired</option>
+                      <option value="rejected">Rejected</option>
+                    </select>
+                    {validationErrors.status && <small className="text-sm text-muted" style={{ color: '#ef4444' }}>{validationErrors.status}</small>}
+                  </div>
+                  <div className="form-group">
+                    <label>Admin Notes {statusData.status === 'rejected' && '*'}</label>
+                    <textarea
+                      className={`form-control ${validationErrors.adminNotes ? 'is-invalid' : ''}`}
+                      rows="3"
+                      placeholder={statusData.status === 'rejected' ? "Reason for rejection" : "Add notes about this decision"}
+                      value={statusData.adminNotes}
+                      onChange={(e) => setStatusData({...statusData, adminNotes: e.target.value})}
+                    />
+                    {validationErrors.adminNotes && <small className="text-sm text-muted" style={{ color: '#ef4444' }}>{validationErrors.adminNotes}</small>}
+                  </div>
+                  <button type="submit" className="btn-submit">Update Status</button>
+                </form>
+              </div>
             </div>
             
-            <button 
-              onClick={closeModal}
-              className="btn btn-secondary"
-              style={{ marginTop: '20px', width: '100%' }}
-            >
-              Close
-            </button>
+            <div className="modal-footer">
+              <button onClick={closeModal} className="btn btn-secondary">Close</button>
+            </div>
           </div>
         </div>
       )}

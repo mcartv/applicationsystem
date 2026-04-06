@@ -138,7 +138,7 @@ const EngineerDashboard = () => {
     }
     
     if (!validateDateOfBirth(formData.dateOfBirth) && formData.dateOfBirth) {
-      errors.dateOfBirth = 'You must be at least 18 years old and not more than 100 years old';
+      errors.dateOfBirth = 'You must be at least 18 years old';
     }
     
     if (!resumeFile && !application?.resume) {
@@ -167,7 +167,7 @@ const EngineerDashboard = () => {
     }
 
     try {
-      const res = await axios.post('/applications/submit', formDataToSend, {
+      await axios.post('/applications/submit', formDataToSend, {
         headers: {
           'Content-Type': 'multipart/form-data'
         }
@@ -204,39 +204,29 @@ const EngineerDashboard = () => {
   };
 
   if (loading) {
-    return <div className="container" style={{ textAlign: 'center', paddingTop: '50px' }}>Loading...</div>;
+    return (
+      <div className="loader">
+        <div className="loader-spinner"></div>
+        <p className="text-muted">Loading your application...</p>
+      </div>
+    );
   }
 
   return (
     <div className="dashboard">
       <div className="dashboard-header">
         <h2>Welcome, {user?.name}</h2>
-        <button 
-          onClick={logout} 
-          className="btn btn-secondary"
-          style={{
-            backgroundColor: '#007bff',
-            color: 'white',
-            border: 'none',
-            padding: '8px 16px',
-            borderRadius: '4px',
-            cursor: 'pointer',
-            fontSize: '14px',
-            fontWeight: '500'
-          }}
-          onMouseEnter={(e) => e.target.style.backgroundColor = '#0056b3'}
-          onMouseLeave={(e) => e.target.style.backgroundColor = '#007bff'}
-        >
+        <button onClick={logout} className="logout-btn">
           Logout
         </button>
       </div>
       
       <div className="dashboard-content">
         {application && application.status !== 'pending' && (
-          <div className="application-card" style={{ marginBottom: '30px' }}>
+          <div className="application-card">
             <h3>Application Status</h3>
-            <div className="status-badge" style={{ marginTop: '10px' }}>
-              <span className={getStatusBadgeClass(application.status)}>
+            <div>
+              <span className={`status-badge ${getStatusBadgeClass(application.status)}`}>
                 {getStatusText(application.status)}
               </span>
             </div>
@@ -247,9 +237,7 @@ const EngineerDashboard = () => {
                 <p><strong>Date:</strong> {new Date(application.interviewSchedule.date).toLocaleDateString()}</p>
                 <p><strong>Time:</strong> {application.interviewSchedule.time}</p>
                 <p><strong>Location:</strong> {application.interviewSchedule.location}</p>
-                {application.interviewSchedule.notes && (
-                  <p><strong>Notes:</strong> {application.interviewSchedule.notes}</p>
-                )}
+                {application.interviewSchedule.notes && <p><strong>Notes:</strong> {application.interviewSchedule.notes}</p>}
               </div>
             )}
             
@@ -276,9 +264,8 @@ const EngineerDashboard = () => {
                 className={`form-control ${validationErrors.fullName ? 'is-invalid' : ''}`}
                 value={formData.fullName}
                 onChange={handleChange}
-                required
               />
-              {validationErrors.fullName && <small style={{ color: '#dc3545' }}>{validationErrors.fullName}</small>}
+              {validationErrors.fullName && <small className="text-sm text-muted" style={{ color: '#ef4444' }}>{validationErrors.fullName}</small>}
             </div>
             
             <div className="form-group">
@@ -289,9 +276,8 @@ const EngineerDashboard = () => {
                 className={`form-control ${validationErrors.email ? 'is-invalid' : ''}`}
                 value={formData.email}
                 onChange={handleChange}
-                required
               />
-              {validationErrors.email && <small style={{ color: '#dc3545' }}>{validationErrors.email}</small>}
+              {validationErrors.email && <small className="text-sm text-muted" style={{ color: '#ef4444' }}>{validationErrors.email}</small>}
             </div>
             
             <div className="form-group">
@@ -303,12 +289,8 @@ const EngineerDashboard = () => {
                 value={formData.phone}
                 onChange={handleChange}
                 placeholder="10-15 digits only"
-                required
               />
-              {validationErrors.phone && <small style={{ color: '#dc3545' }}>{validationErrors.phone}</small>}
-              <small style={{ color: '#666', display: 'block', marginTop: '5px' }}>
-                Numbers only, 10-15 digits
-              </small>
+              {validationErrors.phone && <small className="text-sm text-muted" style={{ color: '#ef4444' }}>{validationErrors.phone}</small>}
             </div>
             
             <div className="form-group">
@@ -331,10 +313,7 @@ const EngineerDashboard = () => {
                 value={formData.dateOfBirth}
                 onChange={handleChange}
               />
-              {validationErrors.dateOfBirth && <small style={{ color: '#dc3545' }}>{validationErrors.dateOfBirth}</small>}
-              <small style={{ color: '#666', display: 'block', marginTop: '5px' }}>
-                You must be at least 18 years old
-              </small>
+              {validationErrors.dateOfBirth && <small className="text-sm text-muted" style={{ color: '#ef4444' }}>{validationErrors.dateOfBirth}</small>}
             </div>
             
             <div className="form-group">
@@ -345,13 +324,10 @@ const EngineerDashboard = () => {
                 onChange={handleFileChange}
                 accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
               />
-              {validationErrors.resume && <small style={{ color: '#dc3545' }}>{validationErrors.resume}</small>}
-              <small style={{ color: '#666', display: 'block', marginTop: '5px' }}>
-                Max file size: 5MB. Allowed formats: PDF, DOC, DOCX, JPG, JPEG, PNG
-              </small>
+              {validationErrors.resume && <small className="text-sm text-muted" style={{ color: '#ef4444' }}>{validationErrors.resume}</small>}
               {application?.resume && !resumeFile && (
-                <div style={{ marginTop: '5px', color: '#28a745' }}>
-                  ✓ Current resume uploaded: {application.resume.originalName}
+                <div style={{ marginTop: '8px', color: '#059669', fontSize: '0.75rem' }}>
+                  ✓ Current resume: {application.resume.originalName}
                 </div>
               )}
             </div>
