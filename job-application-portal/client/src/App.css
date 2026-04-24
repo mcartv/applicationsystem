@@ -239,26 +239,108 @@ select.form-control {
 
 .dashboard-shell {
   display: grid;
-  grid-template-columns: 240px minmax(0, 1fr);
+  grid-template-columns: 260px minmax(0, 1fr);
   min-height: 100vh;
-  background:
-    radial-gradient(circle at top left, rgba(255, 255, 255, 0.22), transparent 28%),
-    linear-gradient(180deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0));
+  background: #f8fafc;
 }
 
 .dashboard-sidebar {
   position: sticky;
   top: 0;
+  align-self: start;
+  height: 100vh;
+  overflow-y: auto;
+
   display: flex;
   flex-direction: column;
   gap: 20px;
-  min-height: 100vh;
+
   padding: 20px 16px;
-  background:
-    linear-gradient(180deg, rgba(9, 25, 63, 0.96) 0%, rgba(18, 50, 106, 0.94) 100%);
+  background: linear-gradient(180deg, #09193f 0%, #12326a 100%);
   color: #f8fbff;
   border-right: 1px solid rgba(255, 255, 255, 0.08);
   box-shadow: 14px 0 40px rgba(7, 21, 53, 0.18);
+}
+
+.dashboard-main {
+  min-width: 0;
+  padding: 24px;
+}
+
+/* default readable text sizes */
+.sidebar-kicker {
+  font-size: 0.75rem;
+}
+
+.sidebar-brand h2 {
+  font-size: 1.25rem;
+}
+
+.sidebar-description {
+  font-size: 1rem;
+}
+
+.sidebar-link {
+  font-size: 1rem;
+  padding: 12px 14px;
+}
+
+.sidebar-user-label {
+  font-size: 0.8rem;
+}
+
+.sidebar-user strong {
+  font-size: 1rem;
+}
+
+.sidebar-user-meta {
+  font-size: 0.9rem;
+}
+
+.sidebar-logout-btn {
+  font-size: 1rem;
+}
+
+/* make page text closer to browser default */
+.dashboard-main p,
+.dashboard-main label,
+.dashboard-main input,
+.dashboard-main select,
+.dashboard-main textarea,
+.dashboard-main button,
+.dashboard-main td,
+.dashboard-main th,
+.dashboard-main li {
+  font-size: 1rem;
+}
+
+@media (max-width: 768px) {
+  .dashboard-shell {
+    grid-template-columns: 1fr;
+  }
+
+  .dashboard-sidebar {
+    position: static;
+    height: auto;
+    min-height: auto;
+    overflow-y: visible;
+    border-right: none;
+  }
+
+  .sidebar-nav {
+    flex-direction: row;
+    overflow-x: auto;
+    padding-bottom: 6px;
+  }
+
+  .sidebar-link {
+    flex: 0 0 auto;
+    min-width: 170px;
+  }
+
+  .dashboard-main {
+    padding: 20px;
+  }
 }
 
 .sidebar-brand {
