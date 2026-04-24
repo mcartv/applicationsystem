@@ -72,7 +72,11 @@ const EngineerDashboard = () => {
   const [validationErrors, setValidationErrors] = useState({});
   const [formData, setFormData] = useState(EMPTY_FORM_DATA);
   const [activeSection, setActiveSection] = useState('overview');
-  const [showUpdateModal, setShowUpdateModal] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [successModalContent, setSuccessModalContent] = useState({
+    title: 'Application Updated',
+    message: 'Your latest changes were saved successfully.'
+  });
 
   const fetchApplication = useCallback(async (currentUser = user) => {
     try {
@@ -296,12 +300,21 @@ const EngineerDashboard = () => {
       setValidationErrors({});
       await fetchApplication();
 
-      if (isUpdatingExistingApplication) {
-        setShowUpdateModal(true);
-        setTimeout(() => {
-          setShowUpdateModal(false);
-        }, 2200);
-      }
+      setSuccessModalContent(
+        isUpdatingExistingApplication
+          ? {
+              title: 'Application Updated',
+              message: 'Your latest changes were saved successfully.'
+            }
+          : {
+              title: 'Application Submitted',
+              message: 'Your application has been submitted successfully.'
+            }
+      );
+      setShowSuccessModal(true);
+      setTimeout(() => {
+        setShowSuccessModal(false);
+      }, 2200);
     } catch (err) {
       setError(err.response?.data?.msg || 'Error submitting application');
     } finally {
@@ -677,18 +690,18 @@ const EngineerDashboard = () => {
         </main>
       </div>
 
-      {showUpdateModal && (
-        <div className="modal-overlay" onClick={() => setShowUpdateModal(false)}>
+      {showSuccessModal && (
+        <div className="modal-overlay" onClick={() => setShowSuccessModal(false)}>
           <div className="modal engineer-update-modal" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
-              <h3>Application Updated</h3>
-              <button onClick={() => setShowUpdateModal(false)} className="close-btn" aria-label="Close update modal">
+              <h3>{successModalContent.title}</h3>
+              <button onClick={() => setShowSuccessModal(false)} className="close-btn" aria-label="Close update modal">
                 x
               </button>
             </div>
             <div className="modal-body">
-              <div className="update-check-icon" aria-hidden="true">✓</div>
-              <p>Your latest changes were saved successfully.</p>
+              <div className="update-check-icon" aria-hidden="true">&#10003;</div>
+              <p>{successModalContent.message}</p>
             </div>
           </div>
         </div>
@@ -698,3 +711,5 @@ const EngineerDashboard = () => {
 };
 
 export default EngineerDashboard;
+
+

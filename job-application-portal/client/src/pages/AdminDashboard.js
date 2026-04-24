@@ -28,6 +28,7 @@ const AdminDashboard = () => {
   const [statusFilter, setStatusFilter] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [activeSection, setActiveSection] = useState('overview');
+  const [showStatusSuccessModal, setShowStatusSuccessModal] = useState(false);
 
   const fetchApplications = useCallback(async () => {
     try {
@@ -162,10 +163,12 @@ const AdminDashboard = () => {
       await axios.put(`/admin/applications/${selectedApplication._id}/status`, statusData);
       setMessage('Status updated successfully!');
       await fetchApplications();
+      closeModal();
+      setShowStatusSuccessModal(true);
       setTimeout(() => {
-        closeModal();
+        setShowStatusSuccessModal(false);
         setMessage('');
-      }, 2000);
+      }, 2200);
     } catch (err) {
       setError('Error updating status');
       setTimeout(() => setError(''), 3000);
@@ -686,6 +689,23 @@ const AdminDashboard = () => {
 
             <div className="modal-footer">
               <button onClick={closeModal} className="btn btn-secondary">Close</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showStatusSuccessModal && (
+        <div className="modal-overlay" onClick={() => setShowStatusSuccessModal(false)}>
+          <div className="modal admin-success-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h3>Status Updated</h3>
+              <button onClick={() => setShowStatusSuccessModal(false)} className="close-btn" aria-label="Close success modal">
+                x
+              </button>
+            </div>
+            <div className="modal-body">
+              <div className="admin-success-check-icon" aria-hidden="true">&#10003;</div>
+              <p>The applicant status has been updated successfully.</p>
             </div>
           </div>
         </div>

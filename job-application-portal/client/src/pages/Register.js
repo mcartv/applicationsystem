@@ -21,6 +21,7 @@ const Register = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [error, setError] = useState('');
+  const [fieldErrors, setFieldErrors] = useState({});
   const [loading, setLoading] = useState(false);
   const { register, user } = useAuth();
   const navigate = useNavigate();
@@ -120,77 +121,93 @@ const Register = () => {
     if (name === 'email') {
       setEmailExists(false);
     }
+
+    if (fieldErrors[name]) {
+      setFieldErrors((currentErrors) => ({
+        ...currentErrors,
+        [name]: ''
+      }));
+    }
   };
 
   const handleUsernameBlur = async () => {
     if (formData.username) {
-      await checkUsernameExists(formData.username.trim().toLowerCase());
+      const exists = await checkUsernameExists(formData.username.trim().toLowerCase());
+      setFieldErrors((currentErrors) => ({
+        ...currentErrors,
+        username: exists ? 'This username is already taken.' : ''
+      }));
     }
   };
 
   const handleEmailBlur = async () => {
     if (formData.email) {
-      await checkEmailExists(formData.email.trim());
+      const exists = await checkEmailExists(formData.email.trim());
+      setFieldErrors((currentErrors) => ({
+        ...currentErrors,
+        email: exists ? 'This email is already registered.' : ''
+      }));
     }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+    setFieldErrors({});
 
     const username = formData.username.trim().toLowerCase();
+    const nextFieldErrors = {};
 
     if (!validateUsername(username)) {
-      setError('Username must be 4-20 characters and use only letters, numbers, or underscores');
-      return;
+      nextFieldErrors.username = 'Username must be 4-20 characters and use only letters, numbers, or underscores';
     }
 
-    const usernameTaken = await checkUsernameExists(username);
-    if (usernameTaken) {
-      setError('This username is already taken. Please choose a different one.');
-      return;
+    if (!nextFieldErrors.username) {
+      const usernameTaken = await checkUsernameExists(username);
+      if (usernameTaken) {
+        nextFieldErrors.username = 'This username is already taken. Please choose a different one.';
+      }
     }
 
     if (!validateNamePart(formData.firstName.trim())) {
-      setError('First name must contain only letters and spaces (2-50 characters)');
-      return;
+      nextFieldErrors.firstName = 'First name must contain only letters and spaces (2-50 characters)';
     }
 
     if (!validateNamePart(formData.lastName.trim())) {
-      setError('Last name must contain only letters and spaces (2-50 characters)');
-      return;
+      nextFieldErrors.lastName = 'Last name must contain only letters and spaces (2-50 characters)';
     }
 
     const email = formData.email.trim();
 
     if (!validateEmail(email)) {
-      setError('Please enter a valid email address');
-      return;
+      nextFieldErrors.email = 'Please enter a valid email address';
     }
 
-    const emailTaken = await checkEmailExists(email);
-    if (emailTaken) {
-      setError('This email is already registered. Please use a different email.');
-      return;
+    if (!nextFieldErrors.email) {
+      const emailTaken = await checkEmailExists(email);
+      if (emailTaken) {
+        nextFieldErrors.email = 'This email is already registered. Please use a different email.';
+      }
     }
 
     if (!validatePhone(formData.phone.trim())) {
-      setError('Phone number must contain only numbers (10-15 digits)');
-      return;
+      nextFieldErrors.phone = 'Phone number must contain only numbers (10-15 digits)';
     }
 
     if (!validateDateOfBirth(formData.dateOfBirth)) {
-      setError('You must be at least 18 years old');
-      return;
+      nextFieldErrors.dateOfBirth = 'You must be at least 18 years old';
     }
 
     if (!validatePassword(formData.password)) {
-      setError('Password must be at least 8 characters with at least one uppercase letter, one lowercase letter, and one number. Special characters are not allowed.');
-      return;
+      nextFieldErrors.password = 'Password must be at least 8 characters with uppercase, lowercase, and number. Special characters are not allowed.';
     }
 
     if (formData.password !== formData.confirmPassword) {
-      setError('Passwords do not match');
+      nextFieldErrors.confirmPassword = 'Passwords do not match';
+    }
+
+    if (Object.keys(nextFieldErrors).some((key) => nextFieldErrors[key])) {
+      setFieldErrors(nextFieldErrors);
       return;
     }
 
@@ -208,7 +225,18 @@ const Register = () => {
     });
 
     if (!result.success) {
-      setError(result.error);
+      const normalizedError = String(result.error || '').toLowerCase();
+
+      if (normalizedError.includes('username')) {
+        setFieldErrors((currentErrors) => ({ ...currentErrors, username: result.error }));
+      } else if (normalizedError.includes('email')) {
+        setFieldErrors((currentErrors) => ({ ...currentErrors, email: result.error }));
+      } else if (normalizedError.includes('password')) {
+        setFieldErrors((currentErrors) => ({ ...currentErrors, password: result.error }));
+      } else {
+        setError(result.error);
+      }
+
       setLoading(false);
     }
   };
@@ -243,15 +271,15 @@ const Register = () => {
             <input
               type="text"
               name="username"
-              className="form-control"
+              className={`form-control ${fieldErrors.username ? 'is-invalid' : ''}`}
               placeholder="Choose a username"
               value={formData.username}
               onChange={handleChange}
               onBlur={handleUsernameBlur}
               required
             />
-            <small className={`hint-text ${usernameExists ? 'error' : ''}`}>
-              {usernameExists ? 'This username is already taken.' : 'Use 4-20 letters, numbers, or underscores'}
+            <small className={`hint-text ${(fieldErrors.username || usernameExists) ? 'error' : ''}`}>
+              {fieldErrors.username || (usernameExists ? 'This username is already taken.' : 'Use 4-20 letters, numbers, or underscores')}
             </small>
           </div>
           <div className="form-group">
@@ -259,39 +287,41 @@ const Register = () => {
             <input
               type="text"
               name="firstName"
-              className="form-control"
+              className={`form-control ${fieldErrors.firstName ? 'is-invalid' : ''}`}
               placeholder="Enter your first name"
               value={formData.firstName}
               onChange={handleChange}
               required
             />
+            {fieldErrors.firstName && <small className="hint-text error">{fieldErrors.firstName}</small>}
           </div>
           <div className="form-group">
             <label>Last Name</label>
             <input
               type="text"
               name="lastName"
-              className="form-control"
+              className={`form-control ${fieldErrors.lastName ? 'is-invalid' : ''}`}
               placeholder="Enter your last name"
               value={formData.lastName}
               onChange={handleChange}
               required
             />
+            {fieldErrors.lastName && <small className="hint-text error">{fieldErrors.lastName}</small>}
           </div>
           <div className="form-group">
             <label>Email Address</label>
             <input
               type="email"
               name="email"
-              className="form-control"
+              className={`form-control ${fieldErrors.email ? 'is-invalid' : ''}`}
               placeholder="Enter your email"
               value={formData.email}
               onChange={handleChange}
               onBlur={handleEmailBlur}
               required
             />
-            <small className={`hint-text ${emailExists ? 'error' : ''}`}>
-              {emailExists ? 'This email is already registered.' : 'Email must be unique and valid format'}
+            <small className={`hint-text ${(fieldErrors.email || emailExists) ? 'error' : ''}`}>
+              {fieldErrors.email || (emailExists ? 'This email is already registered.' : 'Email must be unique and valid format')}
             </small>
           </div>
           <div className="form-group">
@@ -299,14 +329,14 @@ const Register = () => {
             <input
               type="tel"
               name="phone"
-              className="form-control"
+              className={`form-control ${fieldErrors.phone ? 'is-invalid' : ''}`}
               placeholder="Enter your phone number"
               value={formData.phone}
               onChange={handleChange}
               required
             />
-            <small className="hint-text">
-              Use 10 to 15 digits only.
+            <small className={`hint-text ${fieldErrors.phone ? 'error' : ''}`}>
+              {fieldErrors.phone || 'Use 10 to 15 digits only.'}
             </small>
           </div>
           <div className="form-group">
@@ -325,12 +355,12 @@ const Register = () => {
             <input
               type="date"
               name="dateOfBirth"
-              className="form-control"
+              className={`form-control ${fieldErrors.dateOfBirth ? 'is-invalid' : ''}`}
               value={formData.dateOfBirth}
               onChange={handleChange}
             />
-            <small className="hint-text">
-              You must be at least 18 years old to apply.
+            <small className={`hint-text ${fieldErrors.dateOfBirth ? 'error' : ''}`}>
+              {fieldErrors.dateOfBirth || 'You must be at least 18 years old to apply.'}
             </small>
           </div>
           <div className="form-group">
@@ -339,7 +369,7 @@ const Register = () => {
               <input
                 type={showPassword ? 'text' : 'password'}
                 name="password"
-                className="form-control"
+                className={`form-control ${fieldErrors.password ? 'is-invalid' : ''}`}
                 placeholder="Enter your password"
                 value={formData.password}
                 onChange={handleChange}
@@ -358,8 +388,8 @@ const Register = () => {
                 />
               </button>
             </div>
-            <small className="hint-text">
-              Password must be at least 8 characters with uppercase, lowercase, and number. No special characters allowed.
+            <small className={`hint-text ${fieldErrors.password ? 'error' : ''}`}>
+              {fieldErrors.password || 'Password must be at least 8 characters with uppercase, lowercase, and number. No special characters allowed.'}
             </small>
           </div>
           <div className="form-group">
@@ -368,7 +398,7 @@ const Register = () => {
               <input
                 type={showConfirmPassword ? 'text' : 'password'}
                 name="confirmPassword"
-                className="form-control"
+                className={`form-control ${fieldErrors.confirmPassword ? 'is-invalid' : ''}`}
                 placeholder="Confirm your password"
                 value={formData.confirmPassword}
                 onChange={handleChange}
@@ -387,6 +417,7 @@ const Register = () => {
                 />
               </button>
             </div>
+            {fieldErrors.confirmPassword && <small className="hint-text error">{fieldErrors.confirmPassword}</small>}
           </div>
           <button type="submit" className="btn-submit" disabled={loading}>
             {loading ? 'Creating Account...' : 'Create Account'}
