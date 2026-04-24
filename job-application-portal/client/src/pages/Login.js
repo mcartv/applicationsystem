@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import '../styles/Login.css';
 
 const Login = () => {
   const [formData, setFormData] = useState({
-    email: '',
+    username: '',
     password: ''
   });
   const [showPassword, setShowPassword] = useState(false);
@@ -30,7 +30,7 @@ const Login = () => {
     let timer;
     if (cooldownTime > 0) {
       timer = setInterval(() => {
-        setCooldownTime(prev => {
+        setCooldownTime((prev) => {
           if (prev <= 1) {
             clearInterval(timer);
             setFailedAttempts(0);
@@ -59,10 +59,15 @@ const Login = () => {
       return;
     }
 
+    const username = formData.username.trim().toLowerCase();
+
     // Hardcoded admin check
-    if (formData.email === 'admin' && formData.password === 'admin123') {
+    if (username === 'admin' && formData.password === 'admin123') {
       const adminUser = {
         id: 'admin001',
+        username: 'admin',
+        firstName: 'System',
+        lastName: 'Administrator',
         name: 'Administrator',
         email: 'admin@system.com',
         role: 'admin'
@@ -76,15 +81,15 @@ const Login = () => {
     }
 
     setLoading(true);
-    const result = await login(formData.email, formData.password);
-    
+    const result = await login(username, formData.password);
+
     if (!result.success) {
       const newAttempts = failedAttempts + 1;
       setFailedAttempts(newAttempts);
-      
+
       if (newAttempts >= 5) {
         setCooldownTime(60);
-        setError(`Too many failed attempts (5/5). Please wait 60 seconds before trying again.`);
+        setError('Too many failed attempts (5/5). Please wait 60 seconds before trying again.');
         setFailedAttempts(0);
       } else {
         setError(`${result.error} (${newAttempts}/5 attempts remaining before 60s cooldown)`);
@@ -110,8 +115,8 @@ const Login = () => {
   return (
     <div className="container">
       <div className="form-container">
-        <button 
-          onClick={goBack} 
+        <button
+          onClick={goBack}
           className="btn-back"
           style={{
             background: 'none',
@@ -125,25 +130,25 @@ const Login = () => {
             gap: '5px'
           }}
         >
-          ← Back
+          Back
         </button>
         <h2>Welcome Back</h2>
-        <p className="form-subtitle">Login to access your dashboard</p>
+        <p className="form-subtitle">Login with your username to access your dashboard</p>
         {error && <div className="alert alert-error">{error}</div>}
         {cooldownTime > 0 && (
           <div className="alert alert-warning" style={{ backgroundColor: '#fff3cd', color: '#856404' }}>
-            ⏰ Cooldown active: {cooldownTime} seconds remaining
+            Cooldown active: {cooldownTime} seconds remaining
           </div>
         )}
         <form onSubmit={handleSubmit}>
           <div className="form-group">
-            <label>Email</label>
+            <label>Username</label>
             <input
-              type="email"
-              name="email"
+              type="text"
+              name="username"
               className="form-control"
-              placeholder="Enter your email"
-              value={formData.email}
+              placeholder="Enter your username"
+              value={formData.username}
               onChange={handleChange}
               disabled={cooldownTime > 0}
               required
@@ -153,7 +158,7 @@ const Login = () => {
             <label>Password</label>
             <div className="password-input-wrapper">
               <input
-                type={showPassword ? "text" : "password"}
+                type={showPassword ? 'text' : 'password'}
                 name="password"
                 className="form-control"
                 placeholder="Enter your password"
@@ -167,11 +172,11 @@ const Login = () => {
                 className="password-toggle"
                 onClick={togglePasswordVisibility}
                 disabled={cooldownTime > 0}
-                aria-label={showPassword ? "Hide password" : "Show password"}
+                aria-label={showPassword ? 'Hide password' : 'Show password'}
               >
                 <img
                   src={`${process.env.PUBLIC_URL}/${showPassword ? 'hide' : 'view'}.png`}
-                  alt={showPassword ? "Hide password" : "Show password"}
+                  alt={showPassword ? 'Hide password' : 'Show password'}
                   className="password-toggle-icon"
                 />
               </button>
@@ -182,7 +187,7 @@ const Login = () => {
           </button>
         </form>
         <p style={{ textAlign: 'center', marginTop: '25px', color: '#666' }}>
-          Don't have an account? <Link to="/register" style={{ color: '#2a5298', fontWeight: '600' }}>Create Account</Link>
+          Don&apos;t have an account? <Link to="/register" style={{ color: '#2a5298', fontWeight: '600' }}>Create Account</Link>
         </p>
       </div>
     </div>

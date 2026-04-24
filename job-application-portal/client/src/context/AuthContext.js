@@ -34,9 +34,9 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const login = async (email, password) => {
+  const login = async (username, password) => {
     try {
-      const res = await axios.post('/auth/login', { email, password });
+      const res = await axios.post('/auth/login', { username, password });
       localStorage.setItem('token', res.data.token);
       setToken(res.data.token);
       setUser(res.data.user);
@@ -47,9 +47,9 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const register = async (name, email, password) => {
+  const register = async (registrationData) => {
     try {
-      const res = await axios.post('/auth/register', { name, email, password, role: 'engineer' });
+      const res = await axios.post('/auth/register', registrationData);
       localStorage.setItem('token', res.data.token);
       setToken(res.data.token);
       setUser(res.data.user);

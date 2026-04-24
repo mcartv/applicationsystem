@@ -7,6 +7,8 @@ const ApplicationSchema = new mongoose.Schema({
     required: true
   },
   personalInfo: {
+    firstName: String,
+    lastName: String,
     fullName: String,
     email: String,
     phone: String,

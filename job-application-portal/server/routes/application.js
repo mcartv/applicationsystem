@@ -6,6 +6,35 @@ const fs = require('fs');
 const Application = require('../models/Application');
 const auth = require('../middleware/auth');
 
+const splitFullName = (value = '') => {
+  const normalizedValue = String(value).trim().replace(/\s+/g, ' ');
+
+  if (!normalizedValue) {
+    return { firstName: '', lastName: '' };
+  }
+
+  const [firstName, ...lastNameParts] = normalizedValue.split(' ');
+
+  return {
+    firstName,
+    lastName: lastNameParts.join(' ')
+  };
+};
+
+const normalizePersonalInfo = (personalInfo = {}) => {
+  const fallbackParts = splitFullName(personalInfo.fullName || '');
+
+  return {
+    firstName: (personalInfo.firstName || fallbackParts.firstName || '').trim(),
+    lastName: (personalInfo.lastName || fallbackParts.lastName || '').trim(),
+    email: (personalInfo.email || '').trim(),
+    phone: (personalInfo.phone || '').trim(),
+    address: (personalInfo.address || '').trim(),
+    dateOfBirth: personalInfo.dateOfBirth || '',
+    position: (personalInfo.position || '').trim()
+  };
+};
+
 // Ensure uploads directory exists
 const uploadDir = 'uploads/';
 if (!fs.existsSync(uploadDir)) {
@@ -42,7 +71,7 @@ router.post('/submit', auth, upload.single('resume'), async (req, res) => {
   try {
     let personalInfo;
     try {
-      personalInfo = JSON.parse(req.body.data).personalInfo;
+      personalInfo = normalizePersonalInfo(JSON.parse(req.body.data).personalInfo);
     } catch (err) {
       return res.status(400).json({ msg: 'Invalid data format' });
     }
