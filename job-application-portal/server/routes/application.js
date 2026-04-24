@@ -23,6 +23,8 @@ const splitFullName = (value = '') => {
 
 const normalizePersonalInfo = (personalInfo = {}) => {
   const fallbackParts = splitFullName(personalInfo.fullName || '');
+  const normalizedDobValue = personalInfo.dateOfBirth ? String(personalInfo.dateOfBirth).trim() : '';
+  const parsedDate = normalizedDobValue ? new Date(normalizedDobValue) : null;
 
   return {
     firstName: (personalInfo.firstName || fallbackParts.firstName || '').trim(),
@@ -30,7 +32,8 @@ const normalizePersonalInfo = (personalInfo = {}) => {
     email: (personalInfo.email || '').trim(),
     phone: (personalInfo.phone || '').trim(),
     address: (personalInfo.address || '').trim(),
-    dateOfBirth: personalInfo.dateOfBirth || '',
+    // Keep DOB nullable to avoid Mongoose Date cast errors on empty strings.
+    dateOfBirth: parsedDate && !Number.isNaN(parsedDate.getTime()) ? parsedDate : null,
     position: (personalInfo.position || '').trim()
   };
 };
@@ -55,14 +58,21 @@ const upload = multer({
   storage,
   limits: { fileSize: 5 * 1024 * 1024 },
   fileFilter: (req, file, cb) => {
-    const filetypes = /pdf|doc|docx|jpg|jpeg|png/;
-    const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
-    const mimetype = filetypes.test(file.mimetype);
-    if (mimetype && extname) {
+    const allowedExtensions = new Set(['.pdf', '.doc', '.docx', '.jpg', '.jpeg', '.png']);
+    const allowedMimeTypes = new Set([
+      'application/pdf',
+      'application/msword',
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      'image/jpeg',
+      'image/png'
+    ]);
+    const extension = path.extname(file.originalname).toLowerCase();
+
+    if (allowedExtensions.has(extension) && allowedMimeTypes.has(file.mimetype)) {
       return cb(null, true);
-    } else {
-      cb(new Error('Only PDF, DOC, DOCX, and images are allowed'));
     }
+
+    cb(new Error('Only PDF, DOC, DOCX, JPG, JPEG, and PNG files are allowed'));
   }
 });
 
@@ -71,7 +81,8 @@ router.post('/submit', auth, upload.single('resume'), async (req, res) => {
   try {
     let personalInfo;
     try {
-      personalInfo = normalizePersonalInfo(JSON.parse(req.body.data).personalInfo);
+      const parsedData = JSON.parse(req.body.data || '{}');
+      personalInfo = normalizePersonalInfo(parsedData.personalInfo || {});
     } catch (err) {
       return res.status(400).json({ msg: 'Invalid data format' });
     }
@@ -103,9 +114,29 @@ router.post('/submit', auth, upload.single('resume'), async (req, res) => {
     await application.save();
     res.json({ msg: 'Application submitted successfully', application });
   } catch (err) {
-    console.error(err.message);
-    res.status(500).send('Server error');
+    console.error('Application submit error:', err);
+    res.status(500).json({
+      msg: 'Server error while submitting application',
+      error: err.message,
+      details: err.errors || null
+    });
   }
+});
+
+router.use((error, req, res, next) => {
+  if (error instanceof multer.MulterError) {
+    if (error.code === 'LIMIT_FILE_SIZE') {
+      return res.status(400).json({ msg: 'File size exceeds 5MB limit' });
+    }
+
+    return res.status(400).json({ msg: error.message });
+  }
+
+  if (error) {
+    return res.status(400).json({ msg: error.message || 'Invalid file upload' });
+  }
+
+  return next();
 });
 
 // Get user's application

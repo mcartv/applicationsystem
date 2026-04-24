@@ -255,9 +255,9 @@ const AdminDashboard = () => {
   const recentApplications = applications.slice(0, 5);
 
   const sidebarItems = [
-    { key: 'overview', label: 'Overview', sectionId: 'admin-overview' },
-    { key: 'pipeline', label: 'Pipeline', sectionId: 'admin-pipeline' },
-    { key: 'applications', label: 'Applications', sectionId: 'admin-applications' }
+    { key: 'overview', label: 'Overview', meta: 'Snapshot and totals', sectionId: 'admin-overview' },
+    { key: 'pipeline', label: 'Pipeline', meta: 'Status and interviews', sectionId: 'admin-pipeline' },
+    { key: 'applications', label: 'Applications', meta: 'Review all applicants', sectionId: 'admin-applications' }
   ];
 
   if (loading) {
@@ -287,7 +287,8 @@ const AdminDashboard = () => {
                 className={`sidebar-link ${activeSection === item.key ? 'active' : ''}`}
                 onClick={() => scrollToSection(item.key, item.sectionId)}
               >
-                {item.label}
+                <span className="sidebar-link-title">{item.label}</span>
+                <span className="sidebar-link-meta">{item.meta}</span>
               </button>
             ))}
           </nav>
@@ -500,51 +501,105 @@ const AdminDashboard = () => {
             </div>
 
             <div className="modal-body">
-              <div className="form-group">
-                <h4>Personal Information</h4>
-                <p><strong>First Name:</strong> {getApplicationNameParts(selectedApplication).firstName || 'N/A'}</p>
-                <p><strong>Last Name:</strong> {getApplicationNameParts(selectedApplication).lastName || 'N/A'}</p>
-                <p><strong>Email:</strong> {selectedApplication.personalInfo?.email || 'N/A'}</p>
-                <p><strong>Phone:</strong> {selectedApplication.personalInfo?.phone || 'N/A'}</p>
-                <p><strong>Address:</strong> {selectedApplication.personalInfo?.address || 'N/A'}</p>
-                <p><strong>Date of Birth:</strong> {selectedApplication.personalInfo?.dateOfBirth ? new Date(selectedApplication.personalInfo.dateOfBirth).toLocaleDateString() : 'N/A'}</p>
-                <p><strong>Position:</strong> {selectedApplication.personalInfo?.position || formatRoleDisplay(selectedApplication.user?.role)}</p>
+              <div className="modal-info-grid">
+                <section className="modal-info-card">
+                  <h4>Personal Information</h4>
+                  <div className="modal-info-list">
+                    <div className="modal-info-item">
+                      <span className="modal-info-label">First Name</span>
+                      <span className="modal-info-value">{getApplicationNameParts(selectedApplication).firstName || 'N/A'}</span>
+                    </div>
+                    <div className="modal-info-item">
+                      <span className="modal-info-label">Last Name</span>
+                      <span className="modal-info-value">{getApplicationNameParts(selectedApplication).lastName || 'N/A'}</span>
+                    </div>
+                    <div className="modal-info-item">
+                      <span className="modal-info-label">Email</span>
+                      <span className="modal-info-value">{selectedApplication.personalInfo?.email || 'N/A'}</span>
+                    </div>
+                    <div className="modal-info-item">
+                      <span className="modal-info-label">Phone</span>
+                      <span className="modal-info-value">{selectedApplication.personalInfo?.phone || 'N/A'}</span>
+                    </div>
+                    <div className="modal-info-item">
+                      <span className="modal-info-label">Address</span>
+                      <span className="modal-info-value">{selectedApplication.personalInfo?.address || 'N/A'}</span>
+                    </div>
+                    <div className="modal-info-item">
+                      <span className="modal-info-label">Date of Birth</span>
+                      <span className="modal-info-value">{selectedApplication.personalInfo?.dateOfBirth ? new Date(selectedApplication.personalInfo.dateOfBirth).toLocaleDateString() : 'N/A'}</span>
+                    </div>
+                    <div className="modal-info-item">
+                      <span className="modal-info-label">Position</span>
+                      <span className="modal-info-value">{selectedApplication.personalInfo?.position || formatRoleDisplay(selectedApplication.user?.role)}</span>
+                    </div>
+                  </div>
+                </section>
               </div>
 
               {selectedApplication.resume && (
-                <div className="form-group">
+                <section className="form-group modal-info-card">
                   <h4>Resume</h4>
-                  <p><strong>File:</strong> {selectedApplication.resume.originalName}</p>
+                  <div className="modal-info-list">
+                    <div className="modal-info-item">
+                      <span className="modal-info-label">File</span>
+                      <span className="modal-info-value">{selectedApplication.resume.originalName}</span>
+                    </div>
+                  </div>
                   <a
                     href={`http://localhost:5000/${selectedApplication.resume.path}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="btn btn-primary"
-                    style={{ padding: '6px 16px', fontSize: '0.75rem', display: 'inline-block', marginTop: '8px' }}
+                    className="btn btn-primary modal-resume-btn"
                   >
                     View Resume
                   </a>
-                </div>
+                </section>
               )}
 
-              <div className="form-group">
+              <section className="form-group modal-info-card">
                 <h4>Current Status</h4>
-                <p>
-                  <strong>Status:</strong>{' '}
-                  <span className={`status-badge ${getStatusBadgeClass(selectedApplication.status)}`}>
-                    {getStatusText(selectedApplication.status)}
-                  </span>
-                </p>
+                <div className="modal-info-list">
+                  <div className="modal-info-item">
+                    <span className="modal-info-label">Status</span>
+                    <span className="modal-info-value">
+                      <span className={`status-badge ${getStatusBadgeClass(selectedApplication.status)}`}>
+                        {getStatusText(selectedApplication.status)}
+                      </span>
+                    </span>
+                  </div>
+                </div>
                 {selectedApplication.interviewSchedule && (
-                  <div style={{ marginTop: '12px' }}>
-                    <p><strong>Interview Date:</strong> {new Date(selectedApplication.interviewSchedule.date).toLocaleDateString()}</p>
-                    <p><strong>Interview Time:</strong> {selectedApplication.interviewSchedule.time}</p>
-                    <p><strong>Location:</strong> {selectedApplication.interviewSchedule.location}</p>
-                    {selectedApplication.interviewSchedule.notes && <p><strong>Notes:</strong> {selectedApplication.interviewSchedule.notes}</p>}
+                  <div className="modal-subinfo-list">
+                    <div className="modal-info-item">
+                      <span className="modal-info-label">Interview Date</span>
+                      <span className="modal-info-value">{new Date(selectedApplication.interviewSchedule.date).toLocaleDateString()}</span>
+                    </div>
+                    <div className="modal-info-item">
+                      <span className="modal-info-label">Interview Time</span>
+                      <span className="modal-info-value">{selectedApplication.interviewSchedule.time}</span>
+                    </div>
+                    <div className="modal-info-item">
+                      <span className="modal-info-label">Location</span>
+                      <span className="modal-info-value">{selectedApplication.interviewSchedule.location}</span>
+                    </div>
+                    {selectedApplication.interviewSchedule.notes && (
+                      <div className="modal-info-item">
+                        <span className="modal-info-label">Notes</span>
+                        <span className="modal-info-value">{selectedApplication.interviewSchedule.notes}</span>
+                      </div>
+                    )}
                   </div>
                 )}
-                {selectedApplication.adminNotes && <p><strong>Admin Notes:</strong> {selectedApplication.adminNotes}</p>}
-              </div>
+                {selectedApplication.adminNotes && (
+                  <div className="modal-subinfo-list">
+                    <div className="modal-info-item">
+                      <span className="modal-info-label">Admin Notes</span>
+                      <span className="modal-info-value">{selectedApplication.adminNotes}</span>
+                    </div>
+                  </div>
+                )}
+              </section>
 
               <div className="form-group">
                 <h4>Schedule Interview</h4>

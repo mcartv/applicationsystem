@@ -231,24 +231,13 @@ const Register = () => {
         <button
           onClick={goBack}
           className="btn-back"
-          style={{
-            background: 'none',
-            border: 'none',
-            fontSize: '16px',
-            cursor: 'pointer',
-            color: '#2a5298',
-            marginBottom: '20px',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '5px'
-          }}
         >
           Back
         </button>
         <h2>Create Account</h2>
         <p className="form-subtitle">Create your profile now so your application form is already prepared later.</p>
         {error && <div className="alert alert-error">{error}</div>}
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit} className="auth-form">
           <div className="form-group">
             <label>Username</label>
             <input
@@ -261,7 +250,7 @@ const Register = () => {
               onBlur={handleUsernameBlur}
               required
             />
-            <small style={{ color: usernameExists ? '#c00' : '#666', display: 'block', marginTop: '5px' }}>
+            <small className={`hint-text ${usernameExists ? 'error' : ''}`}>
               {usernameExists ? 'This username is already taken.' : 'Use 4-20 letters, numbers, or underscores'}
             </small>
           </div>
@@ -301,7 +290,7 @@ const Register = () => {
               onBlur={handleEmailBlur}
               required
             />
-            <small style={{ color: emailExists ? '#c00' : '#666', display: 'block', marginTop: '5px' }}>
+            <small className={`hint-text ${emailExists ? 'error' : ''}`}>
               {emailExists ? 'This email is already registered.' : 'Email must be unique and valid format'}
             </small>
           </div>
@@ -316,7 +305,7 @@ const Register = () => {
               onChange={handleChange}
               required
             />
-            <small style={{ color: '#666', display: 'block', marginTop: '5px' }}>
+            <small className="hint-text">
               Use 10 to 15 digits only.
             </small>
           </div>
@@ -340,7 +329,7 @@ const Register = () => {
               value={formData.dateOfBirth}
               onChange={handleChange}
             />
-            <small style={{ color: '#666', display: 'block', marginTop: '5px' }}>
+            <small className="hint-text">
               You must be at least 18 years old to apply.
             </small>
           </div>
@@ -369,7 +358,7 @@ const Register = () => {
                 />
               </button>
             </div>
-            <small style={{ color: '#666', display: 'block', marginTop: '5px' }}>
+            <small className="hint-text">
               Password must be at least 8 characters with uppercase, lowercase, and number. No special characters allowed.
             </small>
           </div>
@@ -403,8 +392,8 @@ const Register = () => {
             {loading ? 'Creating Account...' : 'Create Account'}
           </button>
         </form>
-        <p style={{ textAlign: 'center', marginTop: '25px', color: '#666' }}>
-          Already have an account? <Link to="/login" style={{ color: '#2a5298', fontWeight: '600' }}>Login here</Link>
+        <p className="auth-footnote">
+          Already have an account? <Link to="/login">Login here</Link>
         </p>
       </div>
     </div>

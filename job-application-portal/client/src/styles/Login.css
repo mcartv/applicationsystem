@@ -1,26 +1,59 @@
+.auth-page.login-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px 14px;
+}
+
 .form-container {
-  max-width: 480px;
-  margin: 80px auto;
-  padding: 40px;
-  background: white;
-  border-radius: 16px;
-  box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-  animation: fadeInUp 0.4s ease;
+  max-width: 430px;
+  width: 100%;
+  margin: 0;
+  padding: 30px 28px;
+  background: rgba(255, 255, 255, 0.98);
+  border-radius: 14px;
+  border: 1px solid rgba(226, 232, 240, 0.95);
+  box-shadow: 0 16px 36px rgba(15, 23, 42, 0.12);
+  animation: fadeInUp 0.35s ease;
 }
 
 .form-container h2 {
   text-align: center;
-  margin-bottom: 8px;
+  margin-bottom: 6px;
   color: #1e3c72;
   font-weight: 700;
-  font-size: 1.75rem;
+  font-size: 1.35rem;
+  line-height: 1.2;
 }
 
 .form-subtitle {
   text-align: center;
   color: #6b7280;
-  margin-bottom: 32px;
-  font-size: 0.875rem;
+  margin-bottom: 20px;
+  font-size: 0.78rem;
+  line-height: 1.5;
+}
+
+.auth-form {
+  margin-top: 2px;
+}
+
+.auth-footnote {
+  text-align: center;
+  margin-top: 18px;
+  color: #64748b;
+  font-size: 0.78rem;
+}
+
+.auth-footnote a {
+  color: #2a5298;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.auth-footnote a:hover {
+  text-decoration: underline;
 }
 
 .password-input-wrapper {
@@ -35,7 +68,7 @@
 
 .password-toggle {
   position: absolute;
-  right: 12px;
+  right: 11px;
   background: none;
   border: none;
   cursor: pointer;
@@ -51,27 +84,40 @@
 }
 
 .password-toggle-icon {
-  width: 20px;
-  height: 20px;
+  width: 18px;
+  height: 18px;
   display: block;
 }
 
 .btn-back {
   background: none;
   border: none;
-  font-size: 0.875rem;
+  font-size: 0.8rem;
   cursor: pointer;
-  color: #6b7280;
-  margin-bottom: 24px;
+  color: #2a5298;
+  margin-bottom: 14px;
   display: flex;
   align-items: center;
   gap: 6px;
   transition: all 0.2s ease;
+  padding: 0;
 }
 
 .btn-back:hover {
-  color: #374151;
-  transform: translateX(-4px);
+  color: #1e3c72;
+  transform: translateX(-2px);
+}
+
+.hint-text {
+  color: #64748b;
+  display: block;
+  margin-top: 5px;
+  font-size: 0.72rem;
+  line-height: 1.4;
+}
+
+.hint-text.error {
+  color: #b91c1c;
 }
 
 @keyframes fadeInUp {
@@ -86,12 +132,16 @@
 }
 
 @media (max-width: 768px) {
+  .auth-page.login-page {
+    align-items: flex-start;
+    padding-top: 28px;
+  }
+
   .form-container {
-    margin: 40px 20px;
-    padding: 32px 24px;
+    padding: 24px 20px;
   }
   
   .form-container h2 {
-    font-size: 1.5rem;
+    font-size: 1.2rem;
   }
 }

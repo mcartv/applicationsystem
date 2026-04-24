@@ -72,6 +72,7 @@ const EngineerDashboard = () => {
   const [validationErrors, setValidationErrors] = useState({});
   const [formData, setFormData] = useState(EMPTY_FORM_DATA);
   const [activeSection, setActiveSection] = useState('overview');
+  const [showUpdateModal, setShowUpdateModal] = useState(false);
 
   const fetchApplication = useCallback(async (currentUser = user) => {
     try {
@@ -273,6 +274,7 @@ const EngineerDashboard = () => {
       return;
     }
 
+    const isUpdatingExistingApplication = Boolean(application);
     setSubmitting(true);
     setMessage('');
     setError('');
@@ -293,6 +295,13 @@ const EngineerDashboard = () => {
       setResumeFile(null);
       setValidationErrors({});
       await fetchApplication();
+
+      if (isUpdatingExistingApplication) {
+        setShowUpdateModal(true);
+        setTimeout(() => {
+          setShowUpdateModal(false);
+        }, 2200);
+      }
     } catch (err) {
       setError(err.response?.data?.msg || 'Error submitting application');
     } finally {
@@ -335,10 +344,10 @@ const EngineerDashboard = () => {
   const profileStatus = formData.firstName && formData.lastName && formData.email && formData.phone ? 'Ready' : 'Review Needed';
 
   const sidebarItems = [
-    { key: 'overview', label: 'Overview', sectionId: 'engineer-overview' },
-    ...(application ? [{ key: 'status', label: 'Status', sectionId: 'engineer-status' }] : []),
-    { key: 'form', label: 'Application Form', sectionId: 'engineer-form' },
-    { key: 'checklist', label: 'Checklist', sectionId: 'engineer-checklist' }
+    { key: 'overview', label: 'Overview', meta: 'Profile and progress', sectionId: 'engineer-overview' },
+    ...(application ? [{ key: 'status', label: 'Status', meta: 'Interview and updates', sectionId: 'engineer-status' }] : []),
+    { key: 'form', label: 'Application Form', meta: 'Personal and contact info', sectionId: 'engineer-form' },
+    { key: 'checklist', label: 'Checklist', meta: 'Final submission guide', sectionId: 'engineer-checklist' }
   ];
 
   const checklistItems = application
@@ -380,7 +389,8 @@ const EngineerDashboard = () => {
                 className={`sidebar-link ${activeSection === item.key ? 'active' : ''}`}
                 onClick={() => scrollToSection(item.key, item.sectionId)}
               >
-                {item.label}
+                <span className="sidebar-link-title">{item.label}</span>
+                <span className="sidebar-link-meta">{item.meta}</span>
               </button>
             ))}
           </nav>
@@ -666,6 +676,23 @@ const EngineerDashboard = () => {
           </section>
         </main>
       </div>
+
+      {showUpdateModal && (
+        <div className="modal-overlay" onClick={() => setShowUpdateModal(false)}>
+          <div className="modal engineer-update-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h3>Application Updated</h3>
+              <button onClick={() => setShowUpdateModal(false)} className="close-btn" aria-label="Close update modal">
+                x
+              </button>
+            </div>
+            <div className="modal-body">
+              <div className="update-check-icon" aria-hidden="true">✓</div>
+              <p>Your latest changes were saved successfully.</p>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

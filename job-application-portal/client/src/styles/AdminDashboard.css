@@ -191,6 +191,63 @@
   display: block;
 }
 
+.modal-info-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+}
+
+.modal-info-card {
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  background: linear-gradient(135deg, rgba(248, 250, 252, 0.95), rgba(240, 247, 255, 0.94));
+}
+
+.modal-info-card h4 {
+  margin: 0 0 10px;
+}
+
+.modal-info-list,
+.modal-subinfo-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.modal-subinfo-list {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px dashed #d5dfeb;
+}
+
+.modal-info-item {
+  display: grid;
+  grid-template-columns: 120px minmax(0, 1fr);
+  gap: 8px;
+  align-items: start;
+}
+
+.modal-info-label {
+  color: #64748b;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.modal-info-value {
+  color: #102347;
+  font-size: 0.8rem;
+  line-height: 1.45;
+  word-break: break-word;
+}
+
+.modal-resume-btn {
+  margin-top: 10px;
+  padding: 6px 16px;
+  font-size: 0.75rem;
+  display: inline-block;
+}
+
 @media (max-width: 900px) {
   .recent-activity-head,
   .status-breakdown-item {
@@ -213,5 +270,10 @@
 
   .recent-applicants-strip {
     align-items: flex-start;
+  }
+
+  .modal-info-item {
+    grid-template-columns: 1fr;
+    gap: 4px;
   }
 }

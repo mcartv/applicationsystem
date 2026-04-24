@@ -189,6 +189,33 @@
   padding-inline: 28px;
 }
 
+.engineer-update-modal {
+  max-width: 420px;
+  border-radius: 14px;
+}
+
+.engineer-update-modal .modal-body p {
+  margin: 0;
+  color: #475569;
+  font-size: 0.86rem;
+  line-height: 1.5;
+  text-align: center;
+}
+
+.update-check-icon {
+  width: 48px;
+  height: 48px;
+  margin: 2px auto 12px;
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  background: linear-gradient(135deg, #22c55e, #16a34a);
+  color: #ffffff;
+  font-size: 1.35rem;
+  font-weight: 700;
+  box-shadow: 0 10px 24px rgba(22, 163, 74, 0.28);
+}
+
 .error-text {
   color: #ef4444;
   font-size: 0.75rem;

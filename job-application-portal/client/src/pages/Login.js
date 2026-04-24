@@ -113,22 +113,11 @@ const Login = () => {
   };
 
   return (
-    <div className="container">
+    <div className="auth-page login-page">
       <div className="form-container">
         <button
           onClick={goBack}
           className="btn-back"
-          style={{
-            background: 'none',
-            border: 'none',
-            fontSize: '16px',
-            cursor: 'pointer',
-            color: '#2a5298',
-            marginBottom: '20px',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '5px'
-          }}
         >
           Back
         </button>
@@ -140,7 +129,7 @@ const Login = () => {
             Cooldown active: {cooldownTime} seconds remaining
           </div>
         )}
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit} className="auth-form">
           <div className="form-group">
             <label>Username</label>
             <input
@@ -186,8 +175,8 @@ const Login = () => {
             {loading ? 'Logging in...' : cooldownTime > 0 ? `Wait ${cooldownTime}s` : 'Login'}
           </button>
         </form>
-        <p style={{ textAlign: 'center', marginTop: '25px', color: '#666' }}>
-          Don&apos;t have an account? <Link to="/register" style={{ color: '#2a5298', fontWeight: '600' }}>Create Account</Link>
+        <p className="auth-footnote">
+          Don&apos;t have an account? <Link to="/register">Create Account</Link>
         </p>
       </div>
     </div>
