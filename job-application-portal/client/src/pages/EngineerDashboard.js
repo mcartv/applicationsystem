@@ -72,6 +72,7 @@ const EngineerDashboard = () => {
   const [validationErrors, setValidationErrors] = useState({});
   const [formData, setFormData] = useState(EMPTY_FORM_DATA);
   const [activeSection, setActiveSection] = useState('overview');
+  const [refreshingApplication, setRefreshingApplication] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [successModalContent, setSuccessModalContent] = useState({
     title: 'Application Updated',
@@ -134,6 +135,27 @@ const EngineerDashboard = () => {
 
     if (targetSection) {
       targetSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
+
+  const handleRefreshApplication = async () => {
+    if (!user || refreshingApplication) {
+      return;
+    }
+
+    setRefreshingApplication(true);
+    setError('');
+
+    try {
+      await fetchApplication(user);
+      setMessage('Application data refreshed.');
+      setTimeout(() => {
+        setMessage('');
+      }, 1800);
+    } catch (err) {
+      setError('Failed to refresh application data.');
+    } finally {
+      setRefreshingApplication(false);
     }
   };
 
@@ -560,6 +582,14 @@ const EngineerDashboard = () => {
                 <h3>{application ? 'Update Your Application' : 'Complete Your Application'}</h3>
                 <p className="section-subtitle">Your form is now organized into modules so it is easier to review and update after registration.</p>
               </div>
+              <button
+                type="button"
+                className="btn btn-secondary refresh-application-btn"
+                onClick={handleRefreshApplication}
+                disabled={refreshingApplication}
+              >
+                {refreshingApplication ? 'Refreshing...' : 'Refresh'}
+              </button>
             </div>
 
             <form onSubmit={handleSubmit}>

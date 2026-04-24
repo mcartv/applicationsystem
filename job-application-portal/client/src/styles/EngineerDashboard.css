@@ -189,6 +189,13 @@
   padding-inline: 28px;
 }
 
+.refresh-application-btn {
+  min-width: 120px;
+  font-size: 0.78rem;
+  padding: 8px 14px;
+  white-space: nowrap;
+}
+
 .engineer-update-modal {
   max-width: 420px;
   border-radius: 14px;

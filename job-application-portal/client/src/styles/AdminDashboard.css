@@ -165,6 +165,11 @@
   min-width: 98px;
 }
 
+.admin-refresh-btn {
+  min-width: 110px;
+  white-space: nowrap;
+}
+
 .modal-close-btn {
   background: #ef4444;
   color: white;

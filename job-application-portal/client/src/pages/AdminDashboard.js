@@ -29,6 +29,7 @@ const AdminDashboard = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [activeSection, setActiveSection] = useState('overview');
   const [showStatusSuccessModal, setShowStatusSuccessModal] = useState(false);
+  const [refreshingApplications, setRefreshingApplications] = useState(false);
 
   const fetchApplications = useCallback(async () => {
     try {
@@ -85,6 +86,12 @@ const AdminDashboard = () => {
     setShowModal(false);
     setSelectedApplication(null);
     setValidationErrors({});
+  };
+
+  const handleRefreshApplications = async () => {
+    setRefreshingApplications(true);
+    await fetchApplications();
+    setRefreshingApplications(false);
   };
 
   const validateInterviewForm = () => {
@@ -401,6 +408,14 @@ const AdminDashboard = () => {
                 <h3>All Applications ({filteredApplications.length})</h3>
                 <p className="section-subtitle">Filter, review, and open each applicant record from the table below.</p>
               </div>
+              <button
+                type="button"
+                className="btn btn-secondary admin-refresh-btn"
+                onClick={handleRefreshApplications}
+                disabled={refreshingApplications}
+              >
+                {refreshingApplications ? 'Refreshing...' : 'Refresh'}
+              </button>
             </div>
 
             <div className="filter-bar">
